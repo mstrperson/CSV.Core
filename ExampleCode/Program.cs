@@ -50,9 +50,9 @@ catch (Exception ex)
 
 // look below for the MathRow definition.
 CSV MathTable = new CSV();
-for(double x = -5; x <= 5; x += 0.01)
+for(decimal x = -15; x <= 15; x += 0.01M)
 {
-    MathTable.Add(new MathRow(x, (x) => x != 0 ? (Math.Sin(x) / x) : double.NaN));
+    MathTable.Add(new MathRow(x, (x) => x != 0 ? (decimal)(Math.Sin((double)x) / (double)x) : decimal.MaxValue));
 }
 
 MathTable.Save("MATH.csv");
@@ -60,13 +60,13 @@ MathTable.Save("MATH.csv");
 // you can also do crazy stuff to Rows....
 internal class MathRow : Row
 {
-    public double fx 
+    public decimal fx 
     { 
-        get => double.TryParse(this["f(x)"], out double result) ? result : double.NaN; 
+        get => decimal.TryParse(this["f(x)"], out decimal result) ? result : 0M; 
     }
-    public double x { get => double.TryParse(this["x"], out double result) ? result : double.NaN; }
+    public decimal x { get => decimal.TryParse(this["x"], out decimal result) ? result : 0M; }
 
-    public MathRow(double x, Func<double, double> f)
+    public MathRow(decimal x, Func<decimal, decimal> f)
     {
         this["x"] = $"{x}";
         this["f(x)"] = $"{f(x)}";

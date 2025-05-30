@@ -165,6 +165,11 @@ public class Row : Dictionary<string,string>
 [DataContract]
 public class CSV : IEnumerable<Row>
 {
+    public static CSV Open(string fileName, Delimeter delimeter = default) => new(File.OpenRead(fileName), delimeter);
+    public static CSV Open(Stream stream, Delimeter delimeter = default) => new(stream, delimeter);
+
+    public static CSV CreateFrom(IEnumerable<Row> rows) => new(rows);
+
     /// <summary>
     /// A title or heading for the table.  If you want one...
     /// </summary>
@@ -386,10 +391,10 @@ public class CSV : IEnumerable<Row>
     /// <summary>
     /// Initialize a CSV from a List of Dictionaries.
     /// </summary>
-    public CSV(List<Row> data)
+    public CSV(IEnumerable<Row> data)
     {
         Heading = "";
-        _data = data;
+        _data = data.ToList();
         _allKeys = new List<string>();
     }
 

@@ -40,6 +40,11 @@ public struct Delimeter
 }
 
 
+/// <summary>
+/// Just a Dictionary of string, string data.
+/// Keys are Column Headers.
+/// Values are cell values in this row.
+/// </summary>
 public class Row : Dictionary<string,string>
 {
     public bool Equals(Row other)
@@ -143,7 +148,10 @@ public class Row : Dictionary<string,string>
             this.Add(headers[i], values[i]);
         }
     }
-    
+
+    /// <summary>
+    /// get this row's data as a JSON string.
+    /// </summary>
     public string JsonString
     {
         get
@@ -162,6 +170,10 @@ public class Row : Dictionary<string,string>
     }
 }
 
+/// <summary>
+/// CSV document, a collection of Rows.
+/// The CSV's collumn headers are the collected keys of all the rows in the document.
+/// </summary>
 [DataContract]
 public class CSV : IEnumerable<Row>
 {
@@ -318,6 +330,23 @@ public class CSV : IEnumerable<Row>
 
         return false;
     }
+
+    public string ToCSharpRecordCode(string typeName, string accessLevel = "public") =>
+        $"""
+        {accessLevel} record {typeName}(
+        \t{string.Join($",{Environment.NewLine}\t", AllKeys.Select(k => $"{GetDataType(k).Name} {k}"))});
+        """;
+
+    public Type GetDataType(string column) =>
+        this.GuessMySqlDataType(column) switch
+        {
+            "INT" => typeof(int),
+            "DOUBLE" => typeof(double),
+            "DATETIME" => typeof(DateTime),
+            "TEXT" => typeof(string),
+            _ => typeof(string)
+        };
+
 
     public string GuessMySqlDataType(string column)
     {

@@ -9,6 +9,22 @@
 	  <Authors>Jason Cox</Authors>
 	  <WebPage>https://github.com/mstrperson</WebPage>
 	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	  <PackageProjectUrl>https://github.com/mstperson/CSV.Core</PackageProjectUrl>
+	  <PackageReadmeFile>Readme.md</PackageReadmeFile>
+	  <RepositoryUrl>https://github.com/mstrperson/CSV.Core</RepositoryUrl>
+	  <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+	  <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="Readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>

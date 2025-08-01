@@ -20,8 +20,6 @@ The `Csv.CSV` class provides a flexible, in-memory representation of a CSV (Comm
 
 ## Usage Example
 
-````````
-
 ---
 
 ## Constructors
@@ -145,15 +143,125 @@ Each row is a `Row` object, which extends `Dictionary<string, string>`.
 
 ---
 
-## Notes
+## LINQ Support
 
-- Handles quoted values and embedded delimiters.
-- Throws `ArgumentOutOfRangeException` for invalid column access.
-- Not thread-safe for concurrent modifications.
+The `Csv.CSV` class fully supports LINQ (Language Integrated Query) because it implements `IEnumerable<Row>`. This allows you to use all standard LINQ extension methods (`Where`, `Select`, `OrderBy`, `GroupBy`, etc.) directly on your `CSV` instances and their rows.
+
+### LINQ Usage Examples
+
+#### Filtering Rows
+You can filter rows using LINQ's `Where`:
+```csharp
+using Csv; using System.Linq;
+// Load a CSV file 
+CSV table = CSV.Open("data.csv");
+// Find all rows where the "Status" column is "Active" 
+var activeRows = table.Where(row => row["Status"] == "Active");
+// Convert the result to a list or a new CSV List<Row> activeList = activeRows.ToList(); CSV activeTable = new CSV(activeRows);
+```
+
+#### Projecting Columns
+
+You can select specific columns or transform data:
+```csharp
+// Get all email addresses from the "Email" column var emails = table.Select(row => row["Email"]).ToList();
+```
+
+#### Ordering and Grouping
+
+You can order or group rows by any column:
+
+```csharp
+// Order rows by the "LastName" column 
+var ordered = table.OrderBy(row => row["LastName"]);
+// Group rows by the "Department" column 
+var grouped = table.GroupBy(row => row["Department"]);
+```
+
+#### Aggregation
+
+You can perform aggregations, such as counting or summing:
+```csharp
+// Count rows where "Score" > 90 
+int highScoreCount = table.Count(row => int.Parse(row["Score"]) > 90);
+// Sum a numeric column 
+int total = table.Sum(row => int.Parse(row["Amount"]));
+```
+
+### Notes
+
+- Each `Row` is a `Dictionary<string, string>`, so you can use dictionary accessors in your LINQ queries.
+- You can chain LINQ queries for complex data processing.
+- After filtering or projecting, you can create a new `CSV` instance from any `IEnumerable<Row>`.
+
+### Example: Creating a Filtered CSV
+```csharp
+// Filter and save only rows with non-null "Email" 
+var filtered = table.Where(row => 
+	!string.IsNullOrWhiteSpace(row["Email"])); 
+
+CSV filteredCsv = new CSV(filtered); 
+filteredCsv.Save("filtered.csv");
+```
+**Summary:**  
+The CSV library is designed to work seamlessly with LINQ, enabling expressive, type-safe, and efficient data queries and transformations on tabular data.
+### Advanced: Custom Row Types
+
+#### Creating a CSV from DTOs
+
+You can create a new CSV from a collection of DTOs:
+```csharp
+public record Person(int Id, string Name, string Email) 
+{ 
+    // Convert from Row to Person public static 
+    implicit operator Person(Row row) => 
+        new Person( int.TryParse(row["Id"], out var id) ? id : 0, row["Name"], row["Email"] );
+
+    // Convert from Person to Row
+    public static implicit operator Row(Person p) => new Row
+    {
+        ["Id"] = p.Id.ToString(),
+        ["Name"] = p.Name,
+        ["Email"] = p.Email
+    };
+}
+```
+
+#### Usage in LINQ Queries
+
+You can now use these conversions in LINQ queries for type-safe access:
+```csharp
+CSV table = CSV.Open("people.csv");
+
+// Convert all rows to Person records 
+var people = table.Select(row => (Person)row).ToList();
+
+// Filter and project using DTOs 
+var emails = table 
+    .Select(row => (Person)row) 
+    .Where(person => person.Email.EndsWith("@example.com")) 
+    .Select(person => person.Email) 
+    .ToList();
+```
+
+#### Creating Rows from DTOs
+
+You can also convert DTOs back to `Row` for adding or updating CSV data:
+```csharp
+var newPerson = new Person(42, "Alice", "alice@example.com"); 
+Row row = newPerson; // Implicit conversion
+table.Add(row);
+```
+
+#### Creating a CSV from DTOs
+
+You can create a new CSV from a collection of DTOs:
+```csharp
+List<Person> people = GetPeople(); 
+CSV csv = [..people.Select(p => (Row)p))];
+```
 
 ---
 
-## License
-
-This library is provided as-is, without warranty.  
-See the project repository for license details.
+**Summary:**  
+Using implicit conversions between DTO records and `Row` enables type-safe, expressive, and maintainable code when working with CSV data and LINQ.

@@ -487,7 +487,7 @@ public class CSV : IEnumerable<Row>
         Heading = "";
         _data = new List<Row>();
         _allKeys = new List<string>();
-        StreamReader reader = new StreamReader(inputStream);
+        using StreamReader reader = new StreamReader(inputStream);
         string content = reader.ReadToEnd();
 
         string[] lines = content.Replace("\r", "").Split('\n');
@@ -719,9 +719,10 @@ public class CSV : IEnumerable<Row>
     /// </summary>
     /// <param name="output"></param>
     /// <param name="delimeter"></param>
-    public void Save(Stream output, Delimeter delimeter = default)
+    /// <param name="leaveStreamOpen">leave the base stream open when done?</param>
+    public void Save(Stream output, Delimeter delimeter = default, bool leaveStreamOpen = false)
     {
-        using (StreamWriter writer = new StreamWriter(output, Encoding.UTF8))
+        using (StreamWriter writer = new StreamWriter(output, Encoding.UTF8, leaveOpen: leaveStreamOpen))
         {
             writer.AutoFlush = true;
 

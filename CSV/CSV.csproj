@@ -5,9 +5,9 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	  <Version>1.2.0</Version>
+	  <Version>1.2.1</Version>
 	  <Authors>Jason Cox</Authors>
-	  <WebPage></WebPage>
+	  <WebPage>https://github.com/mstrperson</WebPage>
 	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
